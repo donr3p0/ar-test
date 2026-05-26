@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastro AR - Burger na stôl</title>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+    
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; }
+        model-viewer { width: 100%; height: 100%; }
+        
+        /* Jednoduchý načítavací nápis pre zákazníka */
+        #loading-text {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-family: sans-serif; font-size: 18px; text-align: center; pointer-events: none;
+            z-index: 10; /* Aby bol vždy navrchu */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-text">Načítavam Burger... 🍔<br><small>(Hľadám voľný stôl)</small></div>
+
+    <model-viewer 
+        src="burger.glb" 
+        ios-src="burger.usdz" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls
+        auto-rotate
+        rotation-axis="y"
+        shadow-intensity="1.5"
+        shadow-softness="1">
+    </model-viewer>
+
+    <script>
+        const modelViewer = document.querySelector("model-viewer");
+        const loadingText = document.getElementById("loading-text");
+
+        // Hneď ako sa model stiahne do mobilu, schováme nápis a OKAMŽITE spúšťame foťák na stôl
+        modelViewer.addEventListener("load", () => {
+            loadingText.style.display = "none";
+            
+            // Automatický štart fotoaparátu do AR prostredia bez klikania navyše
+            setTimeout(() => {
+                modelViewer.activateAR();
+            }, 300); // Mierne oneskorenie pre plynulosť
+        });
+    </script>
+
+</body>
+</html>
