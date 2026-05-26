@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Gastro AR Menu</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background-color: #111; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Obrovské gastro-tlačidlo cez celú obrazovku - prekoná bezpečnostný zámok mobilov */
+        .ar-start-button {
+            background: linear-gradient(135deg, #e6b800 0%, #cc9900 100%); /* Zlatistá gastro farba */
+            color: black; border: none; font-size: 20px; font-weight: bold;
+            padding: 20px 40px; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 25px rgba(230, 184, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            animation: start-button-fade 0.5s ease-out; /* Plynulé vynorenie tlačidla */
+        }
+
+        .ar-start-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 10px rgba(230, 184, 0, 0.2);
+        }
+
+        .hint-text {
+            color: #aaa; font-size: 14px; margin-top: 15px; text-align: center;
+            animation: start-button-fade 0.5s ease-out 0.2s; /* Plynulé vynorenie hintu */
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        
+        .container {
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* Animácie vynorenia pre webelementy */
+        @keyframes start-button-fade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <button class="ar-start-button" onclick="startAR()">
+            Zobraziť burger na stole 🍔🍽️
+        </button>
+        <div class="hint-text">Naskenujte voľný stôl pred sebou</div>
+    </div>
+
+    <script>
+        function startAR() {
+            // Zistíme, či zákazník drží iPhone/iPad
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+            if (isIOS) {
+                // PRE IPHONE:
+                // allowsContentScaling=0 -> ZABLOKUJE ZVÄČŠOVANIE a pohybovanie. Model je fixný.
+                // canShare=1 -> ZACHOVÁ funkciu fotenia, nahrávania a zdieľania (virálny efekt).
+                // scale=0.04 -> OPRAVÍ MIERKU na 4%
+                // animation=fade-in 0.5s -> Pridá animáciu plynulého vynorenia zo stredu
+                const iosUrl = "burger.usdz#allowsContentScaling=0&canShare=1&canonicalWebPageURL=" + window.location.href + "&scale=0.04&animation=fade-in 0.5s ease-out";
+                
+                // Vytvoríme neviditeľný odkaz a klikneme naň prstom používateľa
+                const anchor = document.createElement('a');
+                anchor.setAttribute('rel', 'ar');
+                anchor.appendChild(document.createElement('img'));
+                anchor.setAttribute('href', iosUrl);
+                anchor.click();
+            } else {
+                // PRE ANDROID:
+                // mode=ar_only -> Zobrazí IBA čistý foťák na stôl.
+                // resizable=false -> ZABLOKUJE zmenu veľkosti (pinch-to-zoom).
+                // disable_placement_ui=true -> ZABLOKUJE pohybovanie modelom prstom po stole.
+                // title=Burger -> Názov, ktorý sa zobrazí v rozhraní fotenia.
+                // scale=0.04 -> OPRAVÍ MIERKU na 4%
+                // animation=fade-in 0.5s -> Pridá animáciu plynulého vynorenia zo stredu
+                const fallbackUrl = window.location.href;
+                const glbUrl = window.location.origin + "/burger.glb";
+                
+                const androidIntent = "intent://arvr.google.com/scene-viewer/1.0?file=" + encodeURIComponent(glbUrl) + "&mode=ar_only&resizable=false&disable_placement_ui=true&title=Burger#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=" + encodeURIComponent(fallbackUrl) + ";S.scale=0.04;S.animation=fade-in 0.5s ease-out;end;";
+                
+                window.location.href = androidIntent;
+            }
+        }
+    </script>
+
+</body>
+</html>
