@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastro AR Menu</title>
+    
+    <style>
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background-color: #111; 
+            display: flex; justify-content: center; align-items: center; 
+            font-family: sans-serif; text-align: center; color: white;
+            overflow: hidden;
+        }
+        
+        /* Zmenili sme to na odkaz, ale vyzerá presne ako tlačidlo */
+        .ar-start-button { 
+            background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%); 
+            color: black; border: none; font-size: 20px; font-weight: bold; 
+            padding: 20px 40px; border-radius: 50px; cursor: pointer; 
+            text-decoration: none; /* Odstráni podčiarknutie odkazu */
+            display: inline-block;
+            box-shadow: 0 10px 25px rgba(255, 153, 0, 0.4);
+            opacity: 0;
+            animation: popInRotate 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes popInRotate {
+            0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .ar-start-button:active { transform: scale(0.95); }
+    </style>
+</head>
+<body>
+
+    <a class="ar-start-button" id="startBtn" href="#">
+        Zobraziť burger na stole 🍔
+    </a>
+
+    <script>
+        const btn = document.getElementById("startBtn");
+        
+        // Detekcia iPhonu
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        // --- ANDROID PRÍPRAVA ODKAZU ---
+        // Vytvoríme tvrdý link na Scene Viewer ešte predtým, ako človek klikne.
+        // Tým pádom to Chrome nezablokuje ako nečakané presmerovanie.
+        const glbUrl = window.location.origin + "/burger.glb";
+        const fallbackUrl = window.location.origin;
+        const intentUrl = "intent://arvr.google.com/scene-viewer/1.0?file=" + encodeURIComponent(glbUrl) + "&mode=ar_only&resizable=false#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=" + encodeURIComponent(fallbackUrl) + ";end;";
+
+        // Ak to NIE JE iPhone, vložíme ten link priamo do tlačidla.
+        if (!isIOS) {
+            btn.href = intentUrl;
+        }
+
+        // --- KLIKNUTIE NA TLAČIDLO ---
+        btn.addEventListener("click", (e) => {
+            if (isIOS) {
+                // Pre iPhone zastavíme klasické správanie odkazu
+                e.preventDefault(); 
+                
+                // IPHONE KÓD - TVOJ ULOŽENÝ A FUNKČNÝ HACK
+                const shareUrl = encodeURIComponent(window.location.origin);
+                const iosUrl = "burger.usdz#allowsContentScaling=0&canonicalWebPageURL=" + shareUrl;
+                
+                const anchor = document.createElement('a');
+                anchor.setAttribute('rel', 'ar');
+                anchor.appendChild(document.createElement('img'));
+                anchor.setAttribute('href', iosUrl);
+                anchor.click();
+            }
+            // Ak je to Android, Javascript tu neurobí nič a prehliadač len prirodzene otvorí "intentUrl" link, čo by malo zaručene spustiť foťák.
+        });
+    </script>
+
+</body>
+</html>
